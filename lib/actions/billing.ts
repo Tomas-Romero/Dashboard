@@ -50,21 +50,46 @@ export async function createInvoiceAction(
   return { success: true };
 }
 
-export async function generateInvoiceFromTimeAction(
-  projectId: string,
-  clientId: string,
-  projectName: string,
-  hours: number,
-  hourlyRate: number
-) {
+export async function generateInvoiceFromTimeAction(projectId: string) {
   await verifySession();
   const supabase = await createClient();
-  const totalAmount = Math.round(hours * hourlyRate * 100) / 100;
+
+  const { data: project } = await supabase
+    .from("projects")
+    .select("name, client_id, hourly_rate")
+    .eq("id", projectId)
+    .single();
+
+  if (!project?.client_id) {
+    return { error: "Este proyecto no tiene un cliente asignado." };
+  }
+  if (!project.hourly_rate) {
+    return { error: "Este proyecto no tiene una tarifa por hora configurada." };
+  }
+
+  // Recomputed server-side (not trusted from the client) so a timer started
+  // after the summary was rendered can't be double-billed or missed.
+  const { data: entries } = await supabase
+    .from("time_entries")
+    .select("id, duration_minutes")
+    .eq("project_id", projectId)
+    .eq("billable", true)
+    .eq("invoiced", false)
+    .not("ended_at", "is", null);
+
+  const unbilled = entries ?? [];
+  const totalMinutes = unbilled.reduce((sum, e) => sum + (e.duration_minutes ?? 0), 0);
+  if (totalMinutes === 0) {
+    return { error: "No hay horas sin facturar en este proyecto." };
+  }
+
+  const hours = totalMinutes / 60;
+  const totalAmount = Math.round(hours * project.hourly_rate * 100) / 100;
 
   const { data: invoice, error } = await supabase
     .from("invoices")
     .insert({
-      client_id: clientId,
+      client_id: project.client_id,
       invoice_number: `T-${Date.now().toString().slice(-8)}`,
       issue_date: new Date().toISOString().slice(0, 10),
       total_amount: totalAmount,
@@ -75,13 +100,19 @@ export async function generateInvoiceFromTimeAction(
 
   if (error) return { error: error.message };
 
-  await supabase.from("invoice_items").insert({
-    invoice_id: invoice.id,
-    project_id: projectId,
-    description: `Horas trabajadas en ${projectName} (${hours.toFixed(1)}h a $${hourlyRate}/h)`,
-    quantity: hours,
-    unit_price: hourlyRate,
-  });
+  await Promise.all([
+    supabase.from("invoice_items").insert({
+      invoice_id: invoice.id,
+      project_id: projectId,
+      description: `Horas trabajadas en ${project.name} (${hours.toFixed(1)}h a $${project.hourly_rate}/h)`,
+      quantity: hours,
+      unit_price: project.hourly_rate,
+    }),
+    supabase
+      .from("time_entries")
+      .update({ invoiced: true })
+      .in("id", unbilled.map((e) => e.id)),
+  ]);
 
   revalidatePath("/billing");
   return { success: true, invoiceId: invoice.id };

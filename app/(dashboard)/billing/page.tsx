@@ -14,7 +14,8 @@ import { EmptyState } from "@/components/dashboard/empty-state";
 import { InvoiceFormDialog } from "./invoice-form-dialog";
 import { InvoiceRowActions } from "./invoice-row-actions";
 import { TimeSummary } from "./time-summary";
-import { getUnbilledTimeSummary } from "@/lib/actions/time-entries";
+import { TimeEntriesList } from "./time-entries-list";
+import { getUnbilledTimeSummary, listRecentTimeEntries } from "@/lib/actions/time-entries";
 import type { Client, Invoice } from "@/types/database.types";
 
 export const metadata: Metadata = { title: "Facturación · Mission Control" };
@@ -22,13 +23,14 @@ export const metadata: Metadata = { title: "Facturación · Mission Control" };
 export default async function BillingPage() {
   await verifySession();
   const supabase = await createClient();
-  const [{ data: invoices }, { data: clients }, timeSummary] = await Promise.all([
+  const [{ data: invoices }, { data: clients }, timeSummary, recentEntries] = await Promise.all([
     supabase
       .from("invoices")
       .select("*, clients(name)")
       .order("issue_date", { ascending: false }),
     supabase.from("clients").select("*").order("name"),
     getUnbilledTimeSummary().catch(() => []),
+    listRecentTimeEntries().catch(() => []),
   ]);
 
   const rows = (invoices ?? []) as unknown as (Invoice & {
@@ -48,6 +50,7 @@ export default async function BillingPage() {
       </div>
 
       <TimeSummary summary={timeSummary} />
+      <TimeEntriesList entries={recentEntries} />
 
       {rows.length === 0 ? (
         <EmptyState

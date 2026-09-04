@@ -5,10 +5,12 @@ import { AlertsWidget } from "@/components/dashboard/alerts-widget";
 import { RevenueChart } from "@/components/dashboard/revenue-chart";
 import { RecentProjects } from "@/components/dashboard/recent-projects";
 import { UpcomingTasks } from "@/components/dashboard/upcoming-tasks";
+import { OnboardingHero } from "@/components/dashboard/onboarding-hero";
 import { verifySession } from "@/lib/dal";
 import {
   getAlerts,
   getDashboardStats,
+  getIsNewAccount,
   getRecentProjects,
   getRevenueByMonth,
   getUpcomingTasks,
@@ -19,6 +21,17 @@ const currency = (n: number) =>
 
 export default async function DashboardHomePage() {
   const session = await verifySession();
+  const firstName = session.email?.split("@")[0] ?? "";
+  const isNewAccount = await getIsNewAccount();
+
+  if (isNewAccount) {
+    return (
+      <div className="mx-auto max-w-7xl">
+        <OnboardingHero firstName={firstName} />
+      </div>
+    );
+  }
+
   const [stats, alerts, revenue, projects, tasks] = await Promise.all([
     getDashboardStats(),
     getAlerts(),
@@ -26,8 +39,6 @@ export default async function DashboardHomePage() {
     getRecentProjects(),
     getUpcomingTasks(),
   ]);
-
-  const firstName = session.email?.split("@")[0] ?? "";
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6">

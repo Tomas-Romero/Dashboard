@@ -92,6 +92,47 @@ export async function deleteTimeEntryAction(id: string) {
   revalidatePath("/billing");
 }
 
+export interface TimeEntryRow {
+  id: string;
+  projectId: string;
+  projectName: string;
+  startedAt: string;
+  durationMinutes: number | null;
+  description: string | null;
+  invoiced: boolean;
+}
+
+export async function listRecentTimeEntries(limit = 20): Promise<TimeEntryRow[]> {
+  await verifySession();
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("time_entries")
+    .select("id, project_id, started_at, duration_minutes, description, invoiced, projects(name)")
+    .not("ended_at", "is", null)
+    .order("started_at", { ascending: false })
+    .limit(limit);
+
+  const rows = (data ?? []) as unknown as {
+    id: string;
+    project_id: string;
+    started_at: string;
+    duration_minutes: number | null;
+    description: string | null;
+    invoiced: boolean;
+    projects: { name: string } | null;
+  }[];
+
+  return rows.map((row) => ({
+    id: row.id,
+    projectId: row.project_id,
+    projectName: row.projects?.name ?? "—",
+    startedAt: row.started_at,
+    durationMinutes: row.duration_minutes,
+    description: row.description,
+    invoiced: row.invoiced,
+  }));
+}
+
 export interface ProjectTimeSummary {
   projectId: string;
   projectName: string;
@@ -109,6 +150,7 @@ export async function getUnbilledTimeSummary(): Promise<ProjectTimeSummary[]> {
     .from("time_entries")
     .select("project_id, duration_minutes, billable, projects(name, hourly_rate, client_id, clients(name))")
     .eq("billable", true)
+    .eq("invoiced", false)
     .not("ended_at", "is", null);
 
   const rows = (data ?? []) as unknown as {

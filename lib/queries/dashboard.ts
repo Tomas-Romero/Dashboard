@@ -204,6 +204,19 @@ export async function getRevenueByMonth(): Promise<RevenuePoint[]> {
   }
 }
 
+export async function getIsNewAccount(): Promise<boolean> {
+  try {
+    const supabase = await createClient();
+    const [clients, projects] = await Promise.all([
+      supabase.from("clients").select("id", { count: "exact", head: true }),
+      supabase.from("projects").select("id", { count: "exact", head: true }),
+    ]);
+    return (clients.count ?? 0) === 0 && (projects.count ?? 0) === 0;
+  } catch {
+    return false;
+  }
+}
+
 export async function getRecentProjects(): Promise<RecentProject[]> {
   try {
     const supabase = await createClient();

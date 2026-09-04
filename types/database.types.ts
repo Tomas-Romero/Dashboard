@@ -124,6 +124,7 @@ export type TimeEntry = {
   ended_at: string | null;
   duration_minutes: number | null;
   billable: boolean;
+  invoiced: boolean;
   description: string | null;
   created_at: string;
 };

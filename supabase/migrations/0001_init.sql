@@ -117,6 +117,7 @@ create table time_entries (
   ended_at timestamptz,
   duration_minutes integer,
   billable boolean default true,
+  invoiced boolean default false not null,
   description text,
   created_at timestamptz default now()
 );

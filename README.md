@@ -48,19 +48,19 @@ Next.js 16 (App Router, Turbopack) · TypeScript · Tailwind CSS v4 + shadcn/ui 
   - **Credenciales**: acceso directo a la bóveda filtrada por proyecto.
   - **GitHub**: si el proyecto tiene `repo_url`, se muestra el último commit y la cantidad de issues abiertas (vía `/api/github`, usa `GITHUB_TOKEN` si está configurado para evitar rate limits).
 - **Bóveda de credenciales**: cifrado **AES-256-GCM en el navegador** (WebCrypto). Configurás una Master Passphrase (nunca se envía ni se guarda) que deriva la clave vía PBKDF2 (250k iteraciones). El servidor solo almacena `ciphertext` + `iv` + `salt`. La clave derivada vive únicamente en memoria (React state) durante la sesión del navegador — nunca en `localStorage`.
-- **Time tracking**: cronómetro flotante global (visible en todo el panel), un solo timer activo a la vez, vinculado a un proyecto. Las horas registradas alimentan el widget "Horas esta semana" del home y el resumen de facturación.
-- **Facturación**: alta manual de facturas, cambio de estado (borrador/enviada/pagada/vencida), **generación de factura a partir de horas registradas** (toma horas × tarifa del proyecto) y **exportación a PDF** (`@react-pdf/renderer`, endpoint `/api/invoices/[id]/pdf`).
+- **Time tracking**: cronómetro flotante global (visible en todo el panel), un solo timer activo a la vez, vinculado a un proyecto. Las horas registradas alimentan el widget "Horas esta semana" del home y el resumen de facturación. Historial de entradas editable (borrar) en Facturación.
+- **Facturación**: alta manual de facturas, cambio de estado (borrador/enviada/pagada/vencida), **generación de factura a partir de horas sin facturar** (cada `time_entry` tiene un flag `invoiced` para que no se cobre dos veces el mismo trabajo — se recalcula en el servidor al generar, no confía en lo que mande el cliente) y **exportación a PDF** (`@react-pdf/renderer`, endpoint `/api/invoices/[id]/pdf`).
 - **Infraestructura (vista global)** y **Leads (CRM ligero)**.
 - **Métricas**: ingresos por cliente, proyectos por estado y horas registradas por proyecto (Recharts).
-- **Dashboard home**: métricas animadas, gráfico de ingresos, widget de alertas (infraestructura por vencer, facturas vencidas, tareas próximas) y accesos rápidos.
-- **Command palette** (`⌘K` / `Ctrl+K`): navegación rápida a cualquier sección desde cualquier pantalla.
-- **Diseño**: tema oscuro por defecto con acento índigo/violeta, animaciones de entrada y transición de página con Framer Motion, glassmorphism en login/bóveda, esqueletos de carga (`loading.tsx`) por sección y páginas de error/404 con el mismo lenguaje visual.
+- **Dashboard home**: métricas animadas, gráfico de ingresos, widget de alertas (infraestructura por vencer, facturas vencidas, tareas próximas), accesos rápidos y una pantalla de bienvenida guiada la primera vez que entrás (sin clientes ni proyectos todavía).
+- **Command palette** (`⌘K` / `Ctrl+K`): navegación rápida a cualquier sección **y búsqueda en vivo de clientes/proyectos** por nombre.
+- **Diseño**: tema oscuro por defecto con acento índigo/violeta, favicon e ícono de iOS generados a medida (`app/icon.tsx`, `app/apple-icon.tsx`), animaciones de entrada y transición de página con Framer Motion, glassmorphism en login/bóveda, esqueletos de carga (`loading.tsx`) por sección y páginas de error/404 con el mismo lenguaje visual.
 
 ## Qué queda para una próxima iteración
 
 - El generador de facturas es intencionalmente simple (sin edición de ítems línea por línea en la UI); `invoice_items` ya soporta múltiples líneas si querés extenderlo.
-- "Horas registradas" en Facturación no descuenta horas ya facturadas previamente (no hay un flag `invoiced` en el schema) — es un total acumulado, pensado para revisar antes de generar la factura.
 - Soporte offline / PWA no está contemplado.
+- Cambio/rotación de la Master Passphrase de la bóveda: hoy solo existe "reiniciar todo" en Configuración, no un flujo de rotación que re-cifre las credenciales existentes.
 
 ## Seguridad de la bóveda — notas importantes
 

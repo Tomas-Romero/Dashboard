@@ -19,15 +19,9 @@ export function TimeSummary({ summary }: { summary: ProjectTimeSummary[] }) {
       return;
     }
     startTransition(async () => {
-      const result = await generateInvoiceFromTimeAction(
-        item.projectId,
-        item.clientId!,
-        item.projectName,
-        item.billableMinutes / 60,
-        item.hourlyRate ?? 0
-      );
+      const result = await generateInvoiceFromTimeAction(item.projectId);
       if (result.error) toast.error(result.error);
-      else toast.success("Factura generada a partir de las horas registradas.");
+      else toast.success("Factura generada a partir de las horas sin facturar.");
     });
   }
 
@@ -35,7 +29,7 @@ export function TimeSummary({ summary }: { summary: ProjectTimeSummary[] }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <Clock3 className="size-4 text-primary" /> Horas registradas por proyecto
+          <Clock3 className="size-4 text-primary" /> Horas sin facturar por proyecto
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
