@@ -45,7 +45,7 @@ export function VaultShell({
 
       {entries.length === 0 ? (
         <EmptyState
-          icon={KeyRound}
+          icon={<KeyRound className="size-6" />}
           title="Sin credenciales guardadas"
           description="Agregá tu primera credencial. Se cifra en tu navegador antes de guardarse."
         />

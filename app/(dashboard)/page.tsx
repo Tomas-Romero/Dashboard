@@ -55,7 +55,7 @@ export default async function DashboardHomePage() {
         <StatCard
           label="Proyectos activos"
           value={stats.activeProjects}
-          icon={FolderKanban}
+          icon={<FolderKanban className="size-5" />}
           accent="primary"
           index={0}
         />
@@ -63,14 +63,14 @@ export default async function DashboardHomePage() {
           label="Ingresos del mes"
           value={stats.monthlyRevenue}
           format={currency}
-          icon={DollarSign}
+          icon={<DollarSign className="size-5" />}
           accent="success"
           index={1}
         />
         <StatCard
           label="Facturas pendientes"
           value={stats.pendingInvoicesCount}
-          icon={Receipt}
+          icon={<Receipt className="size-5" />}
           accent="warning"
           index={2}
         />
@@ -78,7 +78,7 @@ export default async function DashboardHomePage() {
           label="Horas esta semana"
           value={stats.hoursThisWeek}
           format={(n) => n.toFixed(1)}
-          icon={Clock3}
+          icon={<Clock3 className="size-5" />}
           accent="primary"
           index={3}
         />

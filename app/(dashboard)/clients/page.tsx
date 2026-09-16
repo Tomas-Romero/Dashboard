@@ -52,7 +52,7 @@ export default async function ClientsPage() {
 
       {clients.length === 0 ? (
         <EmptyState
-          icon={Users}
+          icon={<Users className="size-6" />}
           title="Todavía no tenés clientes"
           description="Creá tu primer cliente para empezar a asociarle proyectos, facturas y credenciales."
           action={<ClientFormDialog />}

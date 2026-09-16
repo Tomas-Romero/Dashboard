@@ -34,7 +34,7 @@ export function ImprovementsTab({
       <div className="order-2 space-y-2 lg:order-1">
         {improvements.length === 0 ? (
           <EmptyState
-            icon={History}
+            icon={<History className="size-6" />}
             title="Sin mejoras registradas"
             description="Llevá un registro simple de las mejoras que le hacés a este proyecto."
           />

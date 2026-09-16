@@ -36,7 +36,7 @@ export function InfrastructureTab({
 
       {items.length === 0 ? (
         <EmptyState
-          icon={Server}
+          icon={<Server className="size-6" />}
           title="Sin infraestructura registrada"
           description="Agregá hosting, dominios, certificados SSL o bases de datos para trackear vencimientos."
         />

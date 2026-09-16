@@ -45,7 +45,7 @@ export default async function InfrastructurePage() {
 
       {items.length === 0 ? (
         <EmptyState
-          icon={Server}
+          icon={<Server className="size-6" />}
           title="Sin infraestructura registrada"
           description="Agregá recursos desde la pestaña Infraestructura de cada proyecto."
         />

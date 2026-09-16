@@ -79,7 +79,7 @@ export default async function ClientDetailPage({
 
       {typedProjects.length === 0 ? (
         <EmptyState
-          icon={FolderKanban}
+          icon={<FolderKanban className="size-6" />}
           title="Sin proyectos todavía"
           description="Creá un proyecto para este cliente para empezar a trackear tareas, infraestructura y facturación."
         />

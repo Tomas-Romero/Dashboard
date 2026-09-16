@@ -46,7 +46,7 @@ export default async function QuotesPage() {
 
       {quotes.length === 0 ? (
         <EmptyState
-          icon={Calculator}
+          icon={<Calculator className="size-6" />}
           title="Todavía no armaste ningún presupuesto"
           description="La calculadora te arma el precio a partir del tipo de sistema, las funcionalidades y el mantenimiento."
           action={

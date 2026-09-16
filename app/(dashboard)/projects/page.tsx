@@ -44,7 +44,7 @@ export default async function ProjectsPage() {
 
       {projects.length === 0 ? (
         <EmptyState
-          icon={FolderKanban}
+          icon={<FolderKanban className="size-6" />}
           title="Sin proyectos todavía"
           description="Creá tu primer proyecto para empezar a organizar tareas, infraestructura y credenciales."
           action={

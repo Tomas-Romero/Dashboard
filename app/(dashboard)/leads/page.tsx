@@ -41,7 +41,7 @@ export default async function LeadsPage() {
 
       {leads.length === 0 ? (
         <EmptyState
-          icon={UserPlus}
+          icon={<UserPlus className="size-6" />}
           title="Sin leads todavía"
           description="Registrá prospectos y llevá el seguimiento hasta convertirlos en clientes."
           action={<LeadFormDialog />}

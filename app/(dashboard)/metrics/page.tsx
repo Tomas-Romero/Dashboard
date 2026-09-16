@@ -28,7 +28,7 @@ export default async function MetricsPage() {
           label="Ingresos totales (pagados)"
           value={metrics.totalRevenue}
           format={(n) => `$${Math.round(n).toLocaleString("es-AR")}`}
-          icon={DollarSign}
+          icon={<DollarSign className="size-5" />}
           accent="success"
           index={0}
         />
@@ -36,7 +36,7 @@ export default async function MetricsPage() {
           label="Horas facturables totales"
           value={metrics.totalBillableHours}
           format={(n) => `${n.toFixed(1)}h`}
-          icon={Clock3}
+          icon={<Clock3 className="size-5" />}
           accent="primary"
           index={1}
         />

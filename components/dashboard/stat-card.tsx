@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AnimatedNumber } from "@/components/dashboard/animated-number";
 import { cn } from "@/lib/utils";
@@ -10,14 +9,15 @@ export function StatCard({
   label,
   value,
   format,
-  icon: Icon,
+  icon,
   accent = "primary",
   index = 0,
 }: {
   label: string;
   value: number;
   format?: (n: number) => string;
-  icon: LucideIcon;
+  /** Pasá el ícono ya renderizado: `icon={<FolderKanban className="size-5" />}`. */
+  icon: React.ReactNode;
   accent?: "primary" | "success" | "warning" | "destructive";
   index?: number;
 }) {
@@ -51,7 +51,7 @@ export function StatCard({
               accentClasses[accent]
             )}
           >
-            <Icon className="size-5" />
+            {icon}
           </div>
         </CardContent>
       </Card>

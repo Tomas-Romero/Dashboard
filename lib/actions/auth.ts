@@ -30,6 +30,17 @@ export async function login(
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) {
+    console.error("[login] Supabase auth error:", error.code, "-", error.message);
+
+    if (error.code === "email_not_confirmed") {
+      return {
+        error:
+          "Tu email todavía no está confirmado. Confirmalo en Supabase → Authentication → Users (click en el usuario → Confirm email), o recreá el usuario con \"Auto Confirm User\" tildado.",
+      };
+    }
+    if (error.code === "too_many_requests") {
+      return { error: "Demasiados intentos. Esperá un minuto y probá de nuevo." };
+    }
     return { error: "Email o contraseña incorrectos." };
   }
 

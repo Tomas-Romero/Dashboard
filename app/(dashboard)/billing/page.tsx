@@ -54,7 +54,7 @@ export default async function BillingPage() {
 
       {rows.length === 0 ? (
         <EmptyState
-          icon={Receipt}
+          icon={<Receipt className="size-6" />}
           title="Sin facturas todavía"
           description="Registrá tus facturas para llevar el seguimiento de cobros por cliente."
           action={<InvoiceFormDialog clients={(clients ?? []) as Client[]} />}

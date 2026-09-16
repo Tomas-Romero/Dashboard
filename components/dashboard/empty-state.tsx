@@ -1,15 +1,17 @@
 "use client";
 
-import type { LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function EmptyState({
-  icon: Icon,
+  icon,
   title,
   description,
   action,
 }: {
-  icon: LucideIcon;
+  /** Pasá el ícono ya renderizado: `icon={<Users className="size-6" />}`.
+   *  Una referencia de componente sin invocar (`icon={Users}`) no es
+   *  serializable de Server a Client Component. */
+  icon: React.ReactNode;
   title: string;
   description: string;
   action?: React.ReactNode;
@@ -21,7 +23,7 @@ export function EmptyState({
       className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border py-16 text-center"
     >
       <div className="flex size-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
-        <Icon className="size-6" />
+        {icon}
       </div>
       <div>
         <p className="font-medium">{title}</p>
