@@ -162,6 +162,100 @@ export type Lead = {
   created_at: string;
 };
 
+// ============ PRESUPUESTOS ============
+
+export type QuoteStatus = "draft" | "sent" | "accepted" | "rejected" | "expired";
+export type CatalogKind = "base" | "feature" | "addon" | "infra" | "recurring";
+export type QuoteSegment = "local" | "latam" | "export";
+
+export type CatalogItem = {
+  id: string;
+  kind: CatalogKind;
+  category: string | null;
+  name: string;
+  description: string | null;
+  price_min_usd: number;
+  price_max_usd: number;
+  market_reference_usd: number | null;
+  estimated_hours: number;
+  is_recurring: boolean;
+  requires_maintenance: boolean;
+  is_client_cost: boolean;
+  active: boolean;
+  position: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CatalogItemTask = {
+  id: string;
+  catalog_item_id: string;
+  title: string;
+  description: string | null;
+  priority: TaskPriority;
+  position: number;
+};
+
+export type Quote = {
+  id: string;
+  quote_number: string;
+  client_id: string | null;
+  lead_id: string | null;
+  contact_name: string | null;
+  contact_info: string | null;
+  title: string;
+  segment: QuoteSegment;
+  status: QuoteStatus;
+  subtotal_usd: number;
+  discount_pct: number;
+  surcharge_pct: number;
+  total_usd: number;
+  total_ars: number | null;
+  exchange_rate: number | null;
+  monthly_usd: number;
+  deposit_pct: number;
+  estimated_hours: number;
+  market_total_usd: number;
+  valid_until: string | null;
+  public_token: string;
+  sent_at: string | null;
+  viewed_at: string | null;
+  accepted_at: string | null;
+  project_id: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type QuoteItem = {
+  id: string;
+  quote_id: string;
+  catalog_item_id: string | null;
+  kind: CatalogKind;
+  name: string;
+  description: string | null;
+  quantity: number;
+  unit_price_usd: number;
+  estimated_hours: number;
+  is_recurring: boolean;
+  is_client_cost: boolean;
+  position: number;
+};
+
+export type ExchangeRate = {
+  id: string;
+  source: string;
+  buy: number | null;
+  sell: number | null;
+  fetched_at: string;
+};
+
+export type AppSetting = {
+  key: string;
+  value: unknown;
+  updated_at: string;
+};
+
 type Table<Row> = {
   Row: Row;
   Insert: Partial<Row>;
@@ -183,6 +277,12 @@ export type Database = {
       invoices: Table<Invoice>;
       invoice_items: Table<InvoiceItem>;
       leads: Table<Lead>;
+      catalog_items: Table<CatalogItem>;
+      catalog_item_tasks: Table<CatalogItemTask>;
+      quotes: Table<Quote>;
+      quote_items: Table<QuoteItem>;
+      exchange_rates: Table<ExchangeRate>;
+      app_settings: Table<AppSetting>;
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

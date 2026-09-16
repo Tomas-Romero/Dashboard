@@ -5,6 +5,7 @@ import type {
   InfraStatus,
   InvoiceStatus,
   LeadStatus,
+  QuoteStatus,
 } from "@/types/database.types";
 
 type BadgeTone = "default" | "secondary" | "success" | "warning" | "destructive" | "outline";
@@ -52,4 +53,12 @@ export const LEAD_STATUS: Record<LeadStatus, { label: string; tone: BadgeTone }>
   proposal_sent: { label: "Propuesta enviada", tone: "warning" },
   won: { label: "Ganado", tone: "success" },
   lost: { label: "Perdido", tone: "destructive" },
+};
+
+export const QUOTE_STATUS: Record<QuoteStatus, { label: string; tone: BadgeTone }> = {
+  draft: { label: "Borrador", tone: "secondary" },
+  sent: { label: "Enviado", tone: "outline" },
+  accepted: { label: "Aceptado", tone: "success" },
+  rejected: { label: "Rechazado", tone: "destructive" },
+  expired: { label: "Vencido", tone: "warning" },
 };

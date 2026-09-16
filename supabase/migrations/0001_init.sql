@@ -206,3 +206,129 @@ create index idx_credentials_vault_project_id on credentials_vault(project_id);
 create index idx_time_entries_project_id on time_entries(project_id);
 create index idx_invoices_client_id on invoices(client_id);
 create index idx_invoice_items_invoice_id on invoice_items(invoice_id);
+
+-- ============================================================
+-- PRESUPUESTOS (ver plan-presupuestos.md)
+-- ============================================================
+
+create type quote_status as enum ('draft', 'sent', 'accepted', 'rejected', 'expired');
+create type catalog_kind as enum ('base', 'feature', 'addon', 'infra', 'recurring');
+create type quote_segment as enum ('local', 'latam', 'export');
+
+-- ============ CATÁLOGO DE PRECIOS ============
+-- Precios anclados en USD: el catálogo no envejece con la inflación.
+create table catalog_items (
+  id uuid primary key default uuid_generate_v4(),
+  kind catalog_kind not null,
+  category text,
+  name text not null,
+  description text,
+  price_min_usd numeric(10,2) not null default 0,
+  price_max_usd numeric(10,2) not null default 0,
+  market_reference_usd numeric(10,2),
+  estimated_hours numeric(6,2) default 0,
+  is_recurring boolean default false not null,
+  requires_maintenance boolean default false not null,
+  is_client_cost boolean default false not null,
+  active boolean default true not null,
+  position integer default 0,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- Tareas plantilla: al aceptar un presupuesto se crean solas en el Kanban
+create table catalog_item_tasks (
+  id uuid primary key default uuid_generate_v4(),
+  catalog_item_id uuid references catalog_items(id) on delete cascade not null,
+  title text not null,
+  description text,
+  priority task_priority default 'medium',
+  position integer default 0
+);
+
+-- ============ PRESUPUESTOS ============
+create table quotes (
+  id uuid primary key default uuid_generate_v4(),
+  quote_number text unique not null,
+  client_id uuid references clients(id) on delete set null,
+  lead_id uuid references leads(id) on delete set null,
+  contact_name text,
+  contact_info text,
+  title text not null,
+  segment quote_segment default 'local' not null,
+  status quote_status default 'draft' not null,
+  subtotal_usd numeric(10,2) not null default 0,
+  discount_pct numeric(5,2) default 0 not null,
+  surcharge_pct numeric(5,2) default 0 not null,
+  total_usd numeric(10,2) not null default 0,
+  total_ars numeric(12,2),
+  exchange_rate numeric(10,2),
+  monthly_usd numeric(10,2) default 0 not null,
+  deposit_pct numeric(5,2) default 40 not null,
+  estimated_hours numeric(8,2) default 0 not null,
+  market_total_usd numeric(10,2) default 0 not null,
+  valid_until date,
+  public_token text unique not null,
+  sent_at timestamptz,
+  viewed_at timestamptz,
+  accepted_at timestamptz,
+  project_id uuid references projects(id) on delete set null,
+  notes text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create table quote_items (
+  id uuid primary key default uuid_generate_v4(),
+  quote_id uuid references quotes(id) on delete cascade not null,
+  catalog_item_id uuid references catalog_items(id) on delete set null,
+  kind catalog_kind not null,
+  name text not null,
+  description text,
+  quantity numeric(10,2) default 1 not null,
+  unit_price_usd numeric(10,2) not null default 0,
+  estimated_hours numeric(6,2) default 0 not null,
+  is_recurring boolean default false not null,
+  is_client_cost boolean default false not null,
+  position integer default 0
+);
+
+-- ============ COTIZACIÓN DEL DÓLAR (cache) ============
+create table exchange_rates (
+  id uuid primary key default uuid_generate_v4(),
+  source text not null default 'blue',
+  buy numeric(10,2),
+  sell numeric(10,2),
+  fetched_at timestamptz default now()
+);
+
+-- ============ AJUSTES GENERALES ============
+create table app_settings (
+  key text primary key,
+  value jsonb not null,
+  updated_at timestamptz default now()
+);
+
+create trigger trg_catalog_items_updated_at before update on catalog_items for each row execute function set_updated_at();
+create trigger trg_quotes_updated_at before update on quotes for each row execute function set_updated_at();
+
+-- ============ RLS ============
+alter table catalog_items enable row level security;
+alter table catalog_item_tasks enable row level security;
+alter table quotes enable row level security;
+alter table quote_items enable row level security;
+alter table exchange_rates enable row level security;
+alter table app_settings enable row level security;
+
+create policy "owner_full_access" on catalog_items for all using (auth.uid() is not null) with check (auth.uid() is not null);
+create policy "owner_full_access" on catalog_item_tasks for all using (auth.uid() is not null) with check (auth.uid() is not null);
+create policy "owner_full_access" on quotes for all using (auth.uid() is not null) with check (auth.uid() is not null);
+create policy "owner_full_access" on quote_items for all using (auth.uid() is not null) with check (auth.uid() is not null);
+create policy "owner_full_access" on exchange_rates for all using (auth.uid() is not null) with check (auth.uid() is not null);
+create policy "owner_full_access" on app_settings for all using (auth.uid() is not null) with check (auth.uid() is not null);
+
+create index idx_quote_items_quote_id on quote_items(quote_id);
+create index idx_quotes_client_id on quotes(client_id);
+create index idx_quotes_status on quotes(status);
+create index idx_catalog_items_kind on catalog_items(kind);
+create index idx_catalog_item_tasks_item on catalog_item_tasks(catalog_item_id);

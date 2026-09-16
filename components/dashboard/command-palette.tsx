@@ -8,6 +8,7 @@ import {
   KeyRound,
   Server,
   Receipt,
+  Calculator,
   UserPlus,
   BarChart3,
   Settings,
@@ -32,6 +33,7 @@ const NAV = [
   { title: "Inicio", url: "/", icon: LayoutDashboard },
   { title: "Clientes", url: "/clients", icon: Users },
   { title: "Proyectos", url: "/projects", icon: FolderKanban },
+  { title: "Presupuestos", url: "/quotes", icon: Calculator },
   { title: "Bóveda", url: "/vault", icon: KeyRound },
   { title: "Infraestructura", url: "/infrastructure", icon: Server },
   { title: "Facturación", url: "/billing", icon: Receipt },
@@ -41,6 +43,7 @@ const NAV = [
 ];
 
 const QUICK_ACTIONS = [
+  { title: "Nuevo presupuesto", url: "/quotes/new", icon: Calculator },
   { title: "Nuevo proyecto", url: "/projects/new", icon: Plus },
 ];
 
