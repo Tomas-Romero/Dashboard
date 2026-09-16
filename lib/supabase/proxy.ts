@@ -2,12 +2,21 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 const PUBLIC_PATHS = ["/login", "/auth"];
+// Rutas completamente públicas (link de presupuesto compartido): nunca
+// necesitan sesión ni chequeo de MFA, así que ni siquiera llaman a Supabase.
+const OPEN_PATHS = ["/p/"];
 
 function isPublicPath(pathname: string) {
   return PUBLIC_PATHS.some((path) => pathname.startsWith(path));
 }
 
 export async function updateSession(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (OPEN_PATHS.some((path) => pathname.startsWith(path))) {
+    return NextResponse.next({ request });
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -36,8 +45,6 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const { pathname } = request.nextUrl;
 
   if (!user && !isPublicPath(pathname)) {
     const url = request.nextUrl.clone();

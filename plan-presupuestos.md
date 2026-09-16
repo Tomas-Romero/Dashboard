@@ -276,7 +276,7 @@ Más RLS con la misma política `owner_full_access` que el resto, e índices por
 
 ### 10.3 Fases de construcción
 
-> **Estado: Fases A y B implementadas** (2026-09-16). El esquema está en `0001_init.sql`, el catálogo en `0002_catalog_seed.sql`, y la calculadora en `/quotes/new`. Pendientes: C (link público + PDF), D (conversión a proyecto), E (vencimiento automático), F (estimado vs. real).
+> **Estado: Fases A-F implementadas** (2026-09-16). Esquema en `0001_init.sql` + `0002_catalog_seed.sql` + `0003_fix_rls.sql`. Calculadora en `/quotes/new`, link público en `/p/[token]`, PDF en `/api/quotes/[token]/pdf`, conversión a proyecto con el botón "Aceptar y crear proyecto" en el detalle, vencimiento visible en el widget de alertas del home, y comparación estimado-vs-real una vez que el presupuesto tiene proyecto asociado. Pendiente: probar el flujo completo con datos reales (el usuario ya puede loguearse).
 
 **Fase A — Datos y catálogo**
 - Tablas nuevas en `0001_init.sql` + tipos TypeScript.

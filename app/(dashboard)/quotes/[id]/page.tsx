@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format, isBefore } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft, Clock3, TrendingUp, Wallet } from "lucide-react";
+import { ArrowLeft, Clock3, Scale, TrendingUp, Wallet } from "lucide-react";
 import { verifySession } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +12,8 @@ import { StatusBadge } from "@/components/dashboard/status-badge";
 import { QUOTE_STATUS } from "@/lib/status-config";
 import { formatArs, formatUsd, SEGMENT_LABELS } from "@/lib/quotes/pricing";
 import { QuoteActions } from "./quote-actions";
+import { ShareQuote } from "./share-quote";
+import { AcceptQuoteButton } from "./accept-quote-button";
 import type { Quote, QuoteItem, QuoteStatus, QuoteSegment } from "@/types/database.types";
 
 export default async function QuoteDetailPage({
@@ -64,6 +66,19 @@ export default async function QuoteDetailPage({
         )
       : 0;
 
+  // Fase F: una vez que el presupuesto se convirtió en proyecto, comparamos
+  // las horas estimadas acá contra lo que realmente marcó el cronómetro.
+  let realHours: number | null = null;
+  if (typedQuote.project_id) {
+    const { data: entries } = await supabase
+      .from("time_entries")
+      .select("duration_minutes")
+      .eq("project_id", typedQuote.project_id)
+      .not("duration_minutes", "is", null);
+    realHours =
+      (entries ?? []).reduce((sum, e) => sum + Number(e.duration_minutes ?? 0), 0) / 60;
+  }
+
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-5">
       <Link
@@ -88,8 +103,22 @@ export default async function QuoteDetailPage({
             {SEGMENT_LABELS[typedQuote.segment as QuoteSegment]}
           </p>
         </div>
-        <QuoteActions quote={typedQuote} expired={expired} />
+        <div className="flex flex-wrap items-center gap-2">
+          {!typedQuote.project_id && <AcceptQuoteButton quoteId={typedQuote.id} />}
+          <QuoteActions quote={typedQuote} expired={expired} />
+        </div>
       </div>
+
+      {typedQuote.project_id && (
+        <Link
+          href={`/projects/${typedQuote.project_id}`}
+          className="text-sm text-primary hover:underline"
+        >
+          Ver proyecto creado a partir de este presupuesto →
+        </Link>
+      )}
+
+      <ShareQuote token={typedQuote.public_token} />
 
       {/* Totales */}
       <Card className="card-glow">
@@ -147,6 +176,20 @@ export default async function QuoteDetailPage({
           value={formatUsd(Number(typedQuote.market_total_usd))}
           hint={underpricing >= 1 ? `${Math.round(underpricing)}% por debajo` : undefined}
         />
+        {realHours !== null && (
+          <InternalMetric
+            icon={Scale}
+            label="Estimado vs. real"
+            value={`${Number(typedQuote.estimated_hours)}h → ${realHours.toFixed(1)}h`}
+            hint={
+              realHours > Number(typedQuote.estimated_hours)
+                ? `${Math.round((realHours / Number(typedQuote.estimated_hours) - 1) * 100)}% más de lo estimado`
+                : Number(typedQuote.estimated_hours) > 0
+                  ? "Dentro de lo estimado"
+                  : undefined
+            }
+          />
+        )}
       </div>
 
       {/* Detalle */}

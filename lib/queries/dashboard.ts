@@ -6,7 +6,7 @@ import { es } from "date-fns/locale";
 
 export interface DashboardAlert {
   id: string;
-  kind: "infra" | "invoice" | "task";
+  kind: "infra" | "invoice" | "task" | "quote";
   label: string;
   detail: string;
   href: string;
@@ -162,6 +162,32 @@ export async function getAlerts(): Promise<DashboardAlert[]> {
           : "Sin fecha límite",
         href: `/projects/${task.project_id}?tab=tasks`,
         severity: "warning",
+      });
+    }
+
+    const { data: quotes } = await supabase
+      .from("quotes")
+      .select("id, quote_number, title, valid_until")
+      .in("status", ["draft", "sent"])
+      .lte("valid_until", addDays(new Date(), 5).toISOString().slice(0, 10))
+      .not("valid_until", "is", null);
+
+    const today = new Date().toISOString().slice(0, 10);
+    for (const quote of quotes ?? []) {
+      const isExpired = quote.valid_until! < today;
+      alerts.push({
+        id: `quote-${quote.id}`,
+        kind: "quote",
+        label: quote.title,
+        detail: isExpired
+          ? `Presupuesto ${quote.quote_number} vencido — recalculá el dólar`
+          : `Presupuesto ${quote.quote_number} vence el ${format(
+              new Date(quote.valid_until!),
+              "d 'de' MMMM",
+              { locale: es }
+            )}`,
+        href: `/quotes/${quote.id}`,
+        severity: isExpired ? "destructive" : "warning",
       });
     }
 
