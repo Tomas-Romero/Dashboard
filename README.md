@@ -1,68 +1,105 @@
-# Mission Control — Developer Dashboard
+# Mission Control
 
-Panel de control personal para gestionar proyectos freelance, clientes, credenciales e infraestructura. Ver [`plan-dashboard.md`](../plan-dashboard.md) para el diseño original.
+Panel de control personal para gestión freelance — construido para mi propio uso día a día, no como plantilla genérica.
 
-## Stack
+**Demo en vivo:** [dashboard-zeta-opal-78.vercel.app](https://dashboard-zeta-opal-78.vercel.app)
 
-Next.js 16 (App Router, Turbopack) · TypeScript · Tailwind CSS v4 + shadcn/ui (Radix) · Supabase (Postgres + Auth) · Framer Motion · Recharts · dnd-kit · WebCrypto (AES-256-GCM) para la bóveda.
+---
 
-## Puesta en marcha
+## ¿Qué es esto?
 
-1. **Instalar dependencias** (ya hecho si estás viendo esto recién generado):
+Un dashboard de un solo usuario (mío) que centraliza todo lo que antes tenía repartido entre notas, chats y planillas sueltas para manejar clientes freelance: quién me contrata, en qué proyecto estoy, cuánto cobrar, qué credenciales uso en cada sistema, y cuándo vence cada cosa.
+
+No es multi-tenant ni pensado para venderse — es la herramienta interna de mi propia operación como desarrollador freelance (Tomás Romero / Tarc Technologies).
+
+## ¿Para qué sirve?
+
+- **Cotizar sin improvisar.** Una calculadora de presupuestos con catálogo propio de precios (por tipo de sistema, funcionalidad y complemento), que avisa cuándo estoy cotizando muy por debajo del mercado, y muestra el total en pesos y en dólares actualizado con la cotización del día.
+- **Convertir un presupuesto aceptado en trabajo real con un click**: crea el cliente, el proyecto, las tareas iniciales, la infraestructura y la factura de la seña, todo junto.
+- **Organizar cada proyecto**: Kanban de tareas, registro de mejoras, infraestructura (hosting/dominios/SSL) con vencimientos, y las credenciales de acceso.
+- **Guardar credenciales sin que el servidor las vea nunca en texto plano** — cifrado en el navegador, no en la base.
+- **Medir el tiempo real** con un cronómetro flotante, y compararlo contra lo que había estimado en el presupuesto.
+- **Facturar** con seña automática y generación de PDF, sin cobrar dos veces las mismas horas.
+- **Enterarme antes de que sea tarde**: un panel de alertas junta infraestructura por vencer, facturas vencidas, tareas próximas y presupuestos por caducar.
+
+## ¿Qué tecnologías usa?
+
+| Capa | Elección | Por qué |
+|---|---|---|
+| Framework | **Next.js 16** (App Router, Turbopack) | Server Components + Server Actions, sin API REST propia que mantener |
+| Lenguaje | **TypeScript** | Muchas entidades relacionadas (clientes, proyectos, presupuestos, facturas) — el tipado evita romper algo al tocar otra cosa |
+| UI | **Tailwind CSS v4 + shadcn/ui** (Radix) | Componentes accesibles ya resueltos, velocidad para iterar el diseño |
+| Animación | **Framer Motion** | Transiciones de página, entrada de widgets, el drag del Kanban |
+| Backend/DB | **Supabase** (Postgres + Auth) | RLS real, Auth con MFA integrado, sin infraestructura propia que operar |
+| Cifrado bóveda | **WebCrypto** (AES-256-GCM + PBKDF2), 100% cliente | El servidor nunca recibe ni guarda una contraseña en texto plano |
+| Gráficos | **Recharts** | Métricas e ingresos |
+| Drag & drop | **dnd-kit** | Kanban de tareas |
+| PDF | **@react-pdf/renderer** | Facturas y presupuestos descargables |
+| Estado global chico | **Zustand** | Command palette, timer flotante |
+| Hosting | **Vercel** + **Supabase Cloud** | Deploy nativo de Next.js, tier gratuito de sobra para uso personal |
+
+## ¿Cómo lo veo funcionando? (live demo)
+
+La demo está desplegada y corriendo de verdad en **[dashboard-zeta-opal-78.vercel.app](https://dashboard-zeta-opal-78.vercel.app)** — pero es un panel privado de un solo usuario (el mío), así que la pantalla de login es lo único que vas a poder ver sin credenciales: MFA, bóveda, presupuestos y facturación son datos reales, no una demo pública con datos de prueba.
+
+Si querés ver el resto funcionando, es más fácil correrlo local (siguiente sección) contra tu propio proyecto de Supabase — vas a tener el mismo panel, vacío, para explorar todo sin tocar nada real.
+
+## ¿Cómo lo corro en mi máquina?
+
+1. **Instalar dependencias**:
 
    ```bash
    npm install
    ```
 
-2. **Crear un proyecto en [supabase.com](https://supabase.com)** (gratis). Al crearlo, andá a *Project Settings → API* y copiá:
-   - `Project URL`
-   - `anon public` key
+2. **Crear un proyecto en [supabase.com](https://supabase.com)** (gratis). En *Project Settings → API Keys* vas a encontrar dos claves nuevas:
+   - **`sb_publishable_...`** — pública, va al navegador.
+   - **`sb_secret_...`** — privada, **nunca** con prefijo `NEXT_PUBLIC_`. Se usa solo en el servidor para el link público de presupuestos.
 
-3. **Configurar variables de entorno**: copiá `.env.local.example` a `.env.local` y pegá esas credenciales:
+3. **Variables de entorno**: copiá `.env.local.example` a `.env.local` y completá las tres claves (ver el archivo, tiene la explicación de cada una):
 
    ```bash
    cp .env.local.example .env.local
    ```
 
-4. **Correr la migración SQL**: abrí el *SQL Editor* de tu proyecto Supabase y pegá el contenido completo de [`supabase/migrations/0001_init.sql`](./supabase/migrations/0001_init.sql). Ejecutalo una sola vez.
+4. **Correr las migraciones SQL**, en orden, en el *SQL Editor* de Supabase:
+   - [`0001_init.sql`](./supabase/migrations/0001_init.sql) — esquema completo.
+   - [`0002_catalog_seed.sql`](./supabase/migrations/0002_catalog_seed.sql) — catálogo de precios inicial de presupuestos.
+   - [`0003_fix_rls.sql`](./supabase/migrations/0003_fix_rls.sql) — refuerza las políticas de seguridad (seguro de re-ejecutar).
 
-5. **Crear tu usuario admin**: en Supabase, andá a *Authentication → Users → Add user* y creá tu usuario (email + contraseña). Esta app es single-user: ese es el único login.
+   Pegá el contenido completo de cada uno y ejecutalo antes de pasar al siguiente.
 
-6. **Levantar el servidor**:
+5. **Crear tu usuario admin**: *Authentication → Users → Add user* → **"Create new user"** (no "Invite" — esa opción no setea contraseña). Tildá **"Auto Confirm User"**.
+
+6. **Por seguridad, antes de exponerlo en internet**: en *Authentication → Sign In / Providers*, desactivá **"Allow new users to sign up"**. El panel asume que el único usuario autenticado es el dueño — si el alta pública queda abierta, cualquiera que encuentre la URL podría crearse una cuenta y ver todo.
+
+7. **Levantar el servidor**:
 
    ```bash
    npm run dev
    ```
 
-   Abrí `http://localhost:3000`, iniciá sesión con el usuario que creaste, y listo.
+   Abrí `http://localhost:3000`, iniciá sesión, y listo.
 
-## Qué está implementado
+## ¿Qué partes interesantes tiene?
 
-- **Auth**: login con Supabase Auth, sesión protegida vía `proxy.ts` (Next 16 renombró `middleware` → `proxy`) + verificación autoritativa en `lib/dal.ts`.
-- **MFA (TOTP)**: activación desde Configuración (QR + código de verificación); si está activo, el login pide un segundo paso (`/login/verify`) antes de otorgar acceso — gateado tanto en el proxy (chequeo optimista) como en el DAL (chequeo autoritativo).
-- **Clientes**: CRUD completo con detalle y proyectos asociados.
-- **Proyectos**: CRUD, tabs de detalle con:
-  - **Tareas**: Kanban con drag-and-drop (dnd-kit) entre `todo/in_progress/review/done`, con reordenamiento **dentro** de cada columna (no solo cambio de columna) y overlay animado durante el arrastre.
-  - **Mejoras**: registro simple con fecha.
-  - **Infraestructura**: CRUD de hosting/dominios/SSL/DB con vencimientos.
-  - **Credenciales**: acceso directo a la bóveda filtrada por proyecto.
-  - **GitHub**: si el proyecto tiene `repo_url`, se muestra el último commit y la cantidad de issues abiertas (vía `/api/github`, usa `GITHUB_TOKEN` si está configurado para evitar rate limits).
-- **Bóveda de credenciales**: cifrado **AES-256-GCM en el navegador** (WebCrypto). Configurás una Master Passphrase (nunca se envía ni se guarda) que deriva la clave vía PBKDF2 (250k iteraciones). El servidor solo almacena `ciphertext` + `iv` + `salt`. La clave derivada vive únicamente en memoria (React state) durante la sesión del navegador — nunca en `localStorage`.
-- **Time tracking**: cronómetro flotante global (visible en todo el panel), un solo timer activo a la vez, vinculado a un proyecto. Las horas registradas alimentan el widget "Horas esta semana" del home y el resumen de facturación. Historial de entradas editable (borrar) en Facturación.
-- **Facturación**: alta manual de facturas, cambio de estado (borrador/enviada/pagada/vencida), **generación de factura a partir de horas sin facturar** (cada `time_entry` tiene un flag `invoiced` para que no se cobre dos veces el mismo trabajo — se recalcula en el servidor al generar, no confía en lo que mande el cliente) y **exportación a PDF** (`@react-pdf/renderer`, endpoint `/api/invoices/[id]/pdf`).
-- **Infraestructura (vista global)** y **Leads (CRM ligero)**.
-- **Métricas**: ingresos por cliente, proyectos por estado y horas registradas por proyecto (Recharts).
-- **Dashboard home**: métricas animadas, gráfico de ingresos, widget de alertas (infraestructura por vencer, facturas vencidas, tareas próximas), accesos rápidos y una pantalla de bienvenida guiada la primera vez que entrás (sin clientes ni proyectos todavía).
-- **Command palette** (`⌘K` / `Ctrl+K`): navegación rápida a cualquier sección **y búsqueda en vivo de clientes/proyectos** por nombre.
-- **Diseño**: tema oscuro por defecto con acento índigo/violeta, favicon e ícono de iOS generados a medida (`app/icon.tsx`, `app/apple-icon.tsx`), animaciones de entrada y transición de página con Framer Motion, glassmorphism en login/bóveda, esqueletos de carga (`loading.tsx`) por sección y páginas de error/404 con el mismo lenguaje visual.
+- **La bóveda no es "cifrado en la base"**: la Master Passphrase nunca sale del navegador. Se deriva una clave con PBKDF2 (250.000 iteraciones), se cifra con AES-256-GCM ahí mismo, y a Supabase solo llegan `ciphertext` + `iv` + `salt`. Ni un dump completo de la base expone una contraseña real.
+- **Los presupuestos se guardan en USD, se muestran en ARS al dólar del día** (API pública + caché en base + valor fijo de respaldo si la API está caída), y quedan **congelados 15 días** aunque el dólar se mueva después.
+- **El catálogo de presupuestos avisa cuando estás regalando el trabajo**: cada ítem tiene un precio propio y un precio de referencia de mercado — el guardarraíl no bloquea nada, solo te lo muestra antes de mandarlo.
+- **Un presupuesto aceptado se auto-convierte en proyecto real**: cliente, tareas (desde plantillas por ítem del catálogo), infraestructura y la factura de la seña, todo en una sola acción.
+- **El link público de un presupuesto (`/p/[token]`) no usa sesión ni RLS normal** — usa un cliente de Supabase aparte con la clave secreta, server-only, solo para esa ruta puntual. Es la única parte de la app que bypassa Row Level Security a propósito, y de forma bien acotada.
+- **Ninguna factura cobra dos veces las mismas horas**: cada `time_entry` tiene un flag `invoiced`, y generar una factura desde horas registradas siempre recalcula en el servidor — nunca confía en un total que mande el navegador.
+- **MFA con desafío real en el login**, no solo un checkbox: si está activo, `/login` no alcanza, hace falta pasar por `/login/verify` con el código de la app autenticadora. Se valida tanto en el proxy (chequeo optimista) como en la capa de datos (chequeo autoritativo) — Next.js 16 renombró `middleware` a `proxy`.
+
+---
 
 ## Qué queda para una próxima iteración
 
-- El generador de facturas es intencionalmente simple (sin edición de ítems línea por línea en la UI); `invoice_items` ya soporta múltiples líneas si querés extenderlo.
-- Soporte offline / PWA no está contemplado.
-- Cambio/rotación de la Master Passphrase de la bóveda: hoy solo existe "reiniciar todo" en Configuración, no un flujo de rotación que re-cifre las credenciales existentes.
+- Edición de ítems de factura línea por línea (la base ya soporta varias líneas, falta la UI).
+- Rotación de la Master Passphrase sin perder las credenciales ya guardadas — hoy solo existe "reiniciar todo".
+- Soporte offline / PWA: no contemplado.
 
 ## Seguridad de la bóveda — notas importantes
 
-- Si olvidás la Master Passphrase **no hay forma de recuperarla** (por diseño). En _Configuración_ hay un botón para reiniciar la bóveda (borra todo y empezás de cero).
-- RLS (Row Level Security) está activo en todas las tablas como capa defensiva extra, aunque la app es single-user.
+- Si se olvida la Master Passphrase **no hay forma de recuperarla** (es la idea). En Configuración hay un botón para reiniciar la bóveda entera y empezar de cero.
+- RLS está activo en todas las tablas como capa defensiva, aunque el panel sea de un solo usuario.
