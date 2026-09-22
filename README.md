@@ -19,7 +19,7 @@ No es multi-tenant ni pensado para venderse — es la herramienta interna de mi 
 - **Organizar cada proyecto**: Kanban de tareas, registro de mejoras, infraestructura (hosting/dominios/SSL) con vencimientos, y las credenciales de acceso.
 - **Guardar credenciales sin que el servidor las vea nunca en texto plano** — cifrado en el navegador, no en la base.
 - **Medir el tiempo real** con un cronómetro flotante, y compararlo contra lo que había estimado en el presupuesto.
-- **Facturar** con seña automática y generación de PDF, sin cobrar dos veces las mismas horas.
+- **Facturar** con varios ítems por factura (cada uno con su cantidad y precio, el total siempre es la suma real), seña automática y generación de PDF, sin cobrar dos veces las mismas horas.
 - **Enterarme antes de que sea tarde**: un panel de alertas junta infraestructura por vencer, facturas vencidas, tareas próximas y presupuestos por caducar.
 
 ## ¿Qué tecnologías usa?
@@ -89,13 +89,13 @@ Si querés ver el resto funcionando, es más fácil correrlo local (siguiente se
 - **Un presupuesto aceptado se auto-convierte en proyecto real**: cliente, tareas (desde plantillas por ítem del catálogo), infraestructura y la factura de la seña, todo en una sola acción.
 - **El link público de un presupuesto (`/p/[token]`) no usa sesión ni RLS normal** — usa un cliente de Supabase aparte con la clave secreta, server-only, solo para esa ruta puntual. Es la única parte de la app que bypassa Row Level Security a propósito, y de forma bien acotada.
 - **Ninguna factura cobra dos veces las mismas horas**: cada `time_entry` tiene un flag `invoiced`, y generar una factura desde horas registradas siempre recalcula en el servidor — nunca confía en un total que mande el navegador.
+- **El total de una factura no es un número que se pueda desincronizar de sus ítems**: `invoice_items.subtotal` es una columna generada por Postgres (`quantity * unit_price`), y `invoices.total_amount` se recalcula sumando esos subtotales cada vez que se agrega, edita o borra un ítem — nunca se edita el total a mano.
 - **MFA con desafío real en el login**, no solo un checkbox: si está activo, `/login` no alcanza, hace falta pasar por `/login/verify` con el código de la app autenticadora. Se valida tanto en el proxy (chequeo optimista) como en la capa de datos (chequeo autoritativo) — Next.js 16 renombró `middleware` a `proxy`.
 
 ---
 
 ## Qué queda para una próxima iteración
 
-- Edición de ítems de factura línea por línea (la base ya soporta varias líneas, falta la UI).
 - Rotación de la Master Passphrase sin perder las credenciales ya guardadas — hoy solo existe "reiniciar todo".
 - Soporte offline / PWA: no contemplado.
 

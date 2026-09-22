@@ -118,6 +118,90 @@ export async function generateInvoiceFromTimeAction(projectId: string) {
   return { success: true, invoiceId: invoice.id };
 }
 
+const InvoiceItemSchema = z.object({
+  description: z.string().min(1, "Descripción obligatoria."),
+  quantity: z.coerce.number().positive("La cantidad debe ser mayor a 0."),
+  unit_price: z.coerce.number().nonnegative("El precio no puede ser negativo."),
+});
+
+/** El total de la factura siempre es la suma real de sus ítems — nunca un
+ * número aparte que se pueda desincronizar. Se recalcula después de
+ * cualquier alta, edición o borrado de un ítem. */
+async function recomputeInvoiceTotal(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  invoiceId: string
+) {
+  const { data: items } = await supabase
+    .from("invoice_items")
+    .select("subtotal")
+    .eq("invoice_id", invoiceId);
+
+  const total = (items ?? []).reduce((sum, i) => sum + Number(i.subtotal ?? 0), 0);
+  await supabase.from("invoices").update({ total_amount: total }).eq("id", invoiceId);
+}
+
+export async function addInvoiceItemAction(
+  invoiceId: string,
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  await verifySession();
+  const parsed = InvoiceItemSchema.safeParse({
+    description: formData.get("description"),
+    quantity: formData.get("quantity") || 1,
+    unit_price: formData.get("unit_price"),
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("invoice_items").insert({
+    invoice_id: invoiceId,
+    ...parsed.data,
+  });
+  if (error) return { error: error.message };
+
+  await recomputeInvoiceTotal(supabase, invoiceId);
+  revalidatePath("/billing");
+  revalidatePath(`/billing/${invoiceId}`);
+  return { success: true };
+}
+
+export async function updateInvoiceItemAction(
+  itemId: string,
+  invoiceId: string,
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  await verifySession();
+  const parsed = InvoiceItemSchema.safeParse({
+    description: formData.get("description"),
+    quantity: formData.get("quantity") || 1,
+    unit_price: formData.get("unit_price"),
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("invoice_items")
+    .update(parsed.data)
+    .eq("id", itemId);
+  if (error) return { error: error.message };
+
+  await recomputeInvoiceTotal(supabase, invoiceId);
+  revalidatePath("/billing");
+  revalidatePath(`/billing/${invoiceId}`);
+  return { success: true };
+}
+
+export async function deleteInvoiceItemAction(itemId: string, invoiceId: string) {
+  await verifySession();
+  const supabase = await createClient();
+  await supabase.from("invoice_items").delete().eq("id", itemId);
+  await recomputeInvoiceTotal(supabase, invoiceId);
+  revalidatePath("/billing");
+  revalidatePath(`/billing/${invoiceId}`);
+}
+
 export async function updateInvoiceStatusAction(id: string, status: InvoiceStatus) {
   await verifySession();
   const supabase = await createClient();

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Receipt } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { verifySession } from "@/lib/dal";
@@ -74,7 +75,11 @@ export default async function BillingPage() {
             <TableBody>
               {rows.map((invoice) => (
                 <TableRow key={invoice.id}>
-                  <TableCell className="font-medium">{invoice.invoice_number}</TableCell>
+                  <TableCell className="font-medium">
+                    <Link href={`/billing/${invoice.id}`} className="hover:underline">
+                      {invoice.invoice_number}
+                    </Link>
+                  </TableCell>
                   <TableCell className="text-muted-foreground">
                     {invoice.clients?.name ?? "—"}
                   </TableCell>
