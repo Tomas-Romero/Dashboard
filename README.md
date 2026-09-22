@@ -2,7 +2,7 @@
 
 Panel de control personal de **TARC Tech** para gestión freelance — construido para mi propio uso día a día, no como plantilla genérica.
 
-**Demo en vivo:** [dashboard-zeta-opal-78.vercel.app](https://dashboard-zeta-opal-78.vercel.app)
+**Demo en vivo:** [dashboard.tarctech.com](https://dashboard.tarctech.com)
 
 ---
 
@@ -40,7 +40,7 @@ No es multi-tenant ni pensado para venderse — es la herramienta interna de mi 
 
 ## ¿Cómo lo veo funcionando? (live demo)
 
-La demo está desplegada y corriendo de verdad en **[dashboard-zeta-opal-78.vercel.app](https://dashboard-zeta-opal-78.vercel.app)** — pero es un panel privado de un solo usuario (el mío), así que la pantalla de login es lo único que vas a poder ver sin credenciales: MFA, bóveda, presupuestos y facturación son datos reales, no una demo pública con datos de prueba.
+La demo está desplegada y corriendo de verdad en **[dashboard.tarctech.com](https://dashboard.tarctech.com)** — pero es un panel privado de un solo usuario (el mío), así que la pantalla de login es lo único que vas a poder ver sin credenciales: MFA, bóveda, presupuestos y facturación son datos reales, no una demo pública con datos de prueba.
 
 Si querés ver el resto funcionando, es más fácil correrlo local (siguiente sección) contra tu propio proyecto de Supabase — vas a tener el mismo panel, vacío, para explorar todo sin tocar nada real.
 
