@@ -20,7 +20,7 @@ const TYPE_LABELS: Record<string, string> = {
   other: "Otro",
 };
 
-export const metadata: Metadata = { title: "Infraestructura · Mission Control" };
+export const metadata: Metadata = { title: "Infraestructura · Dashboard TARC Tech" };
 
 export default async function InfrastructurePage() {
   await verifySession();

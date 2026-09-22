@@ -18,7 +18,7 @@ import { TimeEntriesList } from "./time-entries-list";
 import { getUnbilledTimeSummary, listRecentTimeEntries } from "@/lib/actions/time-entries";
 import type { Client, Invoice } from "@/types/database.types";
 
-export const metadata: Metadata = { title: "Facturación · Mission Control" };
+export const metadata: Metadata = { title: "Facturación · Dashboard TARC Tech" };
 
 export default async function BillingPage() {
   await verifySession();

@@ -12,7 +12,7 @@ function currentTitle(pathname: string) {
   const match = [...NAV_ITEMS]
     .sort((a, b) => b.url.length - a.url.length)
     .find((item) => item.url === "/" ? pathname === "/" : pathname.startsWith(item.url));
-  return match?.title ?? "Mission Control";
+  return match?.title ?? "Dashboard TARC Tech";
 }
 
 export function Topbar() {

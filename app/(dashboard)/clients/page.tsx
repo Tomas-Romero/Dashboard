@@ -26,7 +26,7 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-export const metadata: Metadata = { title: "Clientes · Mission Control" };
+export const metadata: Metadata = { title: "Clientes · Dashboard TARC Tech" };
 
 export default async function ClientsPage() {
   await verifySession();

@@ -244,7 +244,7 @@ export function QuoteDocument({
           <Text style={styles.validity}>Precio válido hasta el {validUntil}.</Text>
         )}
 
-        <Text style={styles.footer}>Presupuesto generado con Mission Control.</Text>
+        <Text style={styles.footer}>Presupuesto generado con Dashboard TARC Tech.</Text>
       </Page>
     </Document>
   );

@@ -1,10 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FileDown, LayoutDashboard } from "lucide-react";
+import { FileDown } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { BrandMark } from "@/components/dashboard/brand-mark";
 import type { PublicQuoteData } from "@/lib/queries/public-quote";
 
 const money = (n: number) => `$${Math.round(n).toLocaleString("es-AR")}`;
@@ -29,8 +30,8 @@ export function QuotePublicView({
       className="w-full max-w-xl"
     >
       <div className="mb-6 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-        <LayoutDashboard className="size-4" />
-        Mission Control
+        <BrandMark size={20} />
+        Dashboard TARC Tech
       </div>
 
       <Card className="glass card-glow border-white/10">

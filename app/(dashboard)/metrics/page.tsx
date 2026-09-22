@@ -8,7 +8,7 @@ import { RevenueByClientChart } from "./revenue-by-client-chart";
 import { ProjectsStatusChart } from "./projects-status-chart";
 import { HoursByProjectChart } from "./hours-by-project-chart";
 
-export const metadata: Metadata = { title: "Métricas · Mission Control" };
+export const metadata: Metadata = { title: "Métricas · Dashboard TARC Tech" };
 
 export default async function MetricsPage() {
   await verifySession();

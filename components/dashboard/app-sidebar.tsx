@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { LayoutDashboard, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -16,6 +16,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { NAV_ITEMS } from "@/components/dashboard/nav-items";
+import { BrandMark } from "@/components/dashboard/brand-mark";
 import { logout } from "@/lib/actions/auth";
 
 function isActive(pathname: string, url: string) {
@@ -30,11 +31,11 @@ export function AppSidebar({ email }: { email?: string | null }) {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-1.5">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
-            <LayoutDashboard className="size-4" />
+          <div className="shrink-0">
+            <BrandMark size={32} />
           </div>
           <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-semibold">Mission Control</span>
+            <span className="text-sm font-semibold">Dashboard TARC Tech</span>
             <span className="text-xs text-muted-foreground">Personal</span>
           </div>
         </div>

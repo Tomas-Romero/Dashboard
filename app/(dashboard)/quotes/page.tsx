@@ -13,7 +13,7 @@ import { QUOTE_STATUS } from "@/lib/status-config";
 import { formatArs, formatUsd } from "@/lib/quotes/pricing";
 import type { Quote, QuoteStatus } from "@/types/database.types";
 
-export const metadata: Metadata = { title: "Presupuestos · Mission Control" };
+export const metadata: Metadata = { title: "Presupuestos · Dashboard TARC Tech" };
 
 export default async function QuotesPage() {
   await verifySession();

@@ -15,7 +15,7 @@ import { LeadFormDialog } from "./lead-form-dialog";
 import { LeadRowActions } from "./lead-row-actions";
 import type { Lead } from "@/types/database.types";
 
-export const metadata: Metadata = { title: "Leads · Mission Control" };
+export const metadata: Metadata = { title: "Leads · Dashboard TARC Tech" };
 
 export default async function LeadsPage() {
   await verifySession();

@@ -7,7 +7,7 @@ import { getExchangeRate } from "@/lib/queries/exchange-rate";
 import { QuoteCalculator } from "./quote-calculator";
 import type { CatalogItem, Client } from "@/types/database.types";
 
-export const metadata: Metadata = { title: "Nuevo presupuesto · Mission Control" };
+export const metadata: Metadata = { title: "Nuevo presupuesto · Dashboard TARC Tech" };
 
 export default async function NewQuotePage() {
   await verifySession();

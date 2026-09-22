@@ -1,6 +1,6 @@
-# Mission Control
+# Dashboard TARC Tech
 
-Panel de control personal para gestión freelance — construido para mi propio uso día a día, no como plantilla genérica.
+Panel de control personal de **TARC Tech** para gestión freelance — construido para mi propio uso día a día, no como plantilla genérica.
 
 **Demo en vivo:** [dashboard-zeta-opal-78.vercel.app](https://dashboard-zeta-opal-78.vercel.app)
 

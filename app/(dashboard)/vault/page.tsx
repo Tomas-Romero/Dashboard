@@ -6,7 +6,7 @@ import { VaultSessionProvider } from "@/lib/vault/vault-session";
 import { VaultShell } from "./vault-shell";
 import type { CredentialVaultEntry, Project } from "@/types/database.types";
 
-export const metadata: Metadata = { title: "Bóveda · Mission Control" };
+export const metadata: Metadata = { title: "Bóveda · Dashboard TARC Tech" };
 
 export default async function VaultPage({
   searchParams,

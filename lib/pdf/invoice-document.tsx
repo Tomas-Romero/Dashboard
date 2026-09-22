@@ -166,7 +166,7 @@ export function InvoiceDocument({
           </Text>
         </View>
 
-        <Text style={styles.footer}>Generado con Mission Control — panel personal de gestión freelance.</Text>
+        <Text style={styles.footer}>Generado con Dashboard TARC Tech — panel personal de gestión freelance.</Text>
       </Page>
     </Document>
   );

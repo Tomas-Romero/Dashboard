@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mission Control",
-  description: "Panel de control personal para proyectos, clientes e infraestructura.",
+  title: "Dashboard TARC Tech",
+  description: "Panel de control personal de TARC Tech para proyectos, clientes e infraestructura.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

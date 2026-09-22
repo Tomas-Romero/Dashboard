@@ -3,12 +3,13 @@
 import { useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { login, type AuthFormState } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { BrandMark } from "@/components/dashboard/brand-mark";
 
 const initialState: AuthFormState = {};
 
@@ -29,13 +30,12 @@ export function LoginForm() {
             initial={{ scale: 0.7, rotate: -8, opacity: 0 }}
             animate={{ scale: 1, rotate: 0, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.1, ease: "backOut" }}
-            className="flex size-12 items-center justify-center rounded-2xl bg-primary/15 text-primary"
           >
-            <LayoutDashboard className="size-6" />
+            <BrandMark size={48} />
           </motion.div>
           <div>
             <h1 className="text-lg font-semibold tracking-tight">
-              Mission Control
+              Dashboard TARC Tech
             </h1>
             <p className="text-sm text-muted-foreground">
               Iniciá sesión para continuar

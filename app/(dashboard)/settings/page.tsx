@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { ResetVaultButton } from "./reset-vault-button";
 import { MfaSetup } from "./mfa-setup";
 
-export const metadata: Metadata = { title: "Configuración · Mission Control" };
+export const metadata: Metadata = { title: "Configuración · Dashboard TARC Tech" };
 
 export default async function SettingsPage() {
   const session = await verifySession();

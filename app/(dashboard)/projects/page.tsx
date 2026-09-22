@@ -14,7 +14,7 @@ interface ProjectRow extends Project {
   clients: { name: string } | null;
 }
 
-export const metadata: Metadata = { title: "Proyectos · Mission Control" };
+export const metadata: Metadata = { title: "Proyectos · Dashboard TARC Tech" };
 
 export default async function ProjectsPage() {
   await verifySession();
