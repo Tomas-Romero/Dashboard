@@ -1,0 +1,26 @@
+name: Supabase keep-alive
+on:
+  schedule:
+    - cron: "0 12 */3 * *"   # cada 3 días
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping projects
+        run: |
+          # Pega a /auth/v1/health (GoTrue), no a una tabla puntual: ese
+          # endpoint existe en cualquier proyecto Supabase sin importar el
+          # esquema, y no requiere la clave secreta (a diferencia de la raíz
+          # de PostgREST, que Supabase ahora bloquea para la clave pública).
+          # Alcanza con la clave publishable/anon de cada proyecto.
+          ping() {
+            curl -fsS "$1/auth/v1/health" -H "apikey: $2" > /dev/null \
+              && echo "OK $1" || echo "FALLÓ $1"
+          }
+          ping "${{ secrets.KIOS_DEMO_URL }}"  "${{ secrets.KIOS_DEMO_KEY }}"
+          ping "${{ secrets.KIOS_MT_URL }}"    "${{ secrets.KIOS_MT_KEY }}"
+          ping "${{ secrets.VANINA_URL }}"     "${{ secrets.VANINA_KEY }}"
+          ping "${{ secrets.DASH_URL }}"       "${{ secrets.DASH_KEY }}"
+          ping "${{ secrets.TUTURNO_URL }}"    "${{ secrets.TUTURNO_KEY }}"
